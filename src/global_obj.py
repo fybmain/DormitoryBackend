@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_peewee.db import Database
-
+from flask_peewee.rest import RestAPI
 
 def create_app():
     app = Flask(__name__)
