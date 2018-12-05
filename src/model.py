@@ -41,7 +41,7 @@ class Dormitory(db.Model):
 
 
 class Manager(db.Model):
-    password = CharField(255, null=False)
+    password_hash = CharField(255, null=False)
 
     leaved = BooleanField(null=False)
     real_name = CharField(255, null=False)
@@ -56,7 +56,7 @@ class ManagerBuilding(db.Model):
 
 class Student(db.Model):
     card_id = CharField(10, null=False)
-    password = CharField(255, null=False)
+    password_hash = CharField(255, null=False)
 
     real_name = CharField(255, null=False)
     gender = CharField(20, null=False)
@@ -65,7 +65,7 @@ class Student(db.Model):
     graduate_date = DateField(null=True)
     department = ForeignKeyField(Department, null=False)
 
-    living = BooleanField(null=False)
+    leaved = BooleanField(null=False)
     abnormal = BooleanField(null=False)
     dormitory = ForeignKeyField(Dormitory, null=False)
 

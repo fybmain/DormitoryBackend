@@ -2,5 +2,6 @@ from . import util
 
 from .global_obj import app, database
 from . import model
+from . import error_handler
 
-from . import hello
+from . import auth
