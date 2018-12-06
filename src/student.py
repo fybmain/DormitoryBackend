@@ -1,3 +1,5 @@
+from math import ceil
+
 from .util import http, get_request_json
 from .global_obj import app
 from .model import Student, Department, Dormitory
@@ -13,12 +15,8 @@ def get_student_by_id(id: int) -> Student:
     )
 
 
-@app.route("/student/id/<int:id>", methods=["GET"])
-def get_student_info(id: int):
-    student = get_student_by_id(id)
-    check_permission_condition(student, get_permission_condition(["Management", "Self"], Student))
-
-    return http.Success(result={
+def generate_student_info(student: Student) -> dict:
+    return {
         "card_id": student.card_id,
         "real_name": student.real_name,
         "gender": student.gender,
@@ -35,7 +33,30 @@ def get_student_info(id: int):
             "id": student.dormitory_id,
             "number": student.dormitory.number,
         }),
+    }
+
+
+@app.route("/student/list/page/<int:page_num>", methods=["GET"])
+def get_student_list_page(page_num: int):
+    students = (
+        Student
+        .select()
+        .where(get_permission_condition(["Management", "Self"], Student))
+    )
+    student_count = students.count()
+    student_list = students.paginate(page_num)
+    instance_list = [generate_student_info(student) for student in student_list]
+    return http.Success(result={
+        "page_count": int(ceil(student_count/20)),
+        "list": instance_list,
     })
+
+
+@app.route("/student/id/<int:id>", methods=["GET"])
+def get_student_info(id: int):
+    student = get_student_by_id(id)
+    check_permission_condition(student, get_permission_condition(["Management", "Self"], Student))
+    return http.Success(result=generate_student_info(student))
 
 
 @app.route("/student/id/<int:id>", methods=["PUT"])

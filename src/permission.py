@@ -75,7 +75,7 @@ def get_self_condition(model: type):
             return model.id == manager.id
         else:
             return False
-    else:
+    elif auth_info.role == AuthRoleType.student:
         student: Student = auth_info.obj
 
         if issubclass(model, Building):
@@ -128,6 +128,8 @@ def get_self_condition(model: type):
             return model.id == student.id
         else:
             assert False
+    elif auth_info.role == AuthRoleType.anonymous:
+        return False
 
 
 def get_permission_condition(allowed: List[str], model: type):
@@ -139,11 +141,11 @@ def get_permission_condition(allowed: List[str], model: type):
         return condition
 
     if "Anonymous" in allowed:
-        condition = condition|(auth_info.role==AuthRoleType.anonymous)
+        condition = condition|(auth_info.role == AuthRoleType.anonymous)
     if "Manager" in allowed:
-        condition = condition|(auth_info.role==AuthRoleType.manager)
+        condition = condition|(auth_info.role == AuthRoleType.manager)
     if "Student" in allowed:
-        condition = condition|(auth_info.role==AuthRoleType.student)
+        condition = condition|(auth_info.role == AuthRoleType.student)
 
     if "Management" in allowed:
         condition = condition|get_management_condition(model)
