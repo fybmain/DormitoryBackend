@@ -1,9 +1,9 @@
 DATABASE = {
     'name': 'dormitory',
     'engine': 'peewee.MySQLDatabase',
-    'host': '120.79.48.77',
+    'host': 'fybmain.com',
     'user': 'dormitory',
-    'passwd': '123456',
+    'passwd': 'cOUP0Guy',
 }
 
 PASSWORD_HASH_SALT = "DORMITORY_HASH_SALT_DEBUG"
