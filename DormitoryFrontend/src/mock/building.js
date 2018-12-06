@@ -7,14 +7,13 @@ const count = 100
 for (let i = 0; i < count; i++) {
   List.push(Mock.mock({
     id: '@increment',
-    BuildingName: '东@integer(1,255)栋'
+    buildingName: '东@integer(1,255)栋'
   }))
 }
 
 export default {
   getList: config => {
     const { buildingName, page = 1, limit = 20 } = param2Obj(config.url)
-    console.log(param2Obj(config.url))
     const mockList = List.filter(item => {
       if (buildingName && buildingName !== '' && item.buildingName !== buildingName) return false
       return true

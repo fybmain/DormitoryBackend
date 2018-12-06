@@ -2,31 +2,31 @@ import request from '@/utils/request'
 
 export function fetchList(query) {
   return request({
-    url: '/building/list',
+    url: '/dormitory/list',
     method: 'post',
     params: query
   })
 }
 
-export function deleteBuilding(id) {
+export function deleteDormitory(id) {
   return request({
-    url: '/building/delete',
+    url: '/dormitory/delete',
     method: 'get',
     params: { id }
   })
 }
 
-export function createBuilding(data) {
+export function createDormitory(data) {
   return request({
-    url: '/building/create',
+    url: '/dormitory/create',
     method: 'post',
     data
   })
 }
 
-export function updateBuilding(data) {
+export function updateDormitory(data) {
   return request({
-    url: '/building/update',
+    url: '/dormitory/update',
     method: 'post',
     data
   })
