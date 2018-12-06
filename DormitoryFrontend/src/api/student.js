@@ -9,23 +9,7 @@ export function fetchList(query) {
   })
 }
 
-export function fetchArticle(id) {
-  return request({
-    url: '/student/detail',
-    method: 'get',
-    params: { id }
-  })
-}
-
-export function fetchPv(pv) {
-  return request({
-    url: '/student/pv',
-    method: 'get',
-    params: { pv }
-  })
-}
-
-export function createArticle(data) {
+export function createStudent(data) {
   return request({
     url: '/student/create',
     method: 'post',
@@ -33,9 +17,17 @@ export function createArticle(data) {
   })
 }
 
-export function updateArticle(data) {
+export function updateStudent(data) {
   return request({
     url: '/student/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteStudent(data) {
+  return request({
+    url: '/student/delete',
     method: 'post',
     data
   })

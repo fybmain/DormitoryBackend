@@ -114,14 +114,14 @@
         <el-form-item :label="$t('student.enroll')" prop="enroll">
           <el-date-picker v-model="temp.enroll" type="datetime" placeholder="Please pick a date"/>
         </el-form-item>
-        <el-form-item :label="$t('student.dormid')">
-          <el-select v-model="temp.dormId" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+        <el-form-item :label="$t('student.buildingname')">
+          <el-select v-model="temp.buildingName" class="filter-item" placeholder="Please select" @change="handleUpdateDorm(temp.buildingName)" >
+            <el-option v-for="item in buildingOptions" :key="item" :label="item" :value="item"/>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('student.buildingname')">
-          <el-select v-model="temp.buildingName" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in buildingOptions" :key="item" :label="item" :value="item"/>
+        <el-form-item :label="$t('student.dormid')">
+          <el-select v-model="temp.dormId" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in dormOptions" :key="item" :label="item" :value="item"/>
           </el-select>
         </el-form-item>
       </el-form>
@@ -135,8 +135,9 @@
 </template>
 
 <script>
-import { fetchList, createArticle, updateArticle } from '@/api/student'
-import { fetchBuildingList } from '@/api/building'
+import { fetchList as fetchStudentList, createStudent, updateStudent, deleteStudent } from '@/api/student'
+import { fetchList as fetchBuildingList } from '@/api/building'
+import { fetchList as fetchDormitoryList } from '@/api/dormitory'
 import permission from '@/directive/permission/index.js'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
@@ -177,6 +178,7 @@ export default {
         '化学学院', '生命科学学院', '计算机学院', '城市与环境科学学院', '国际文化交流学院', '政治与国际关系学院'],
       statusOptions: ['全部', '已毕业', '未毕业'],
       buildingOptions: ['全部'],
+      dormOptions: [],
       temp: {
         studentId: undefined,
         name: '',
@@ -212,9 +214,17 @@ export default {
     this.getBuilding()
   },
   methods: {
+    handleUpdateDorm(buildingName) {
+      var listQuery = {
+        BuildingName: buildingName
+      }
+      fetchDormitoryList(listQuery).then(response => {
+        this.dormOptions = response.data.items
+      })
+    },
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      fetchStudentList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 
@@ -267,9 +277,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
+          createStudent(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -296,7 +304,7 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
+          updateStudent(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
@@ -316,14 +324,16 @@ export default {
       })
     },
     handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+      deleteStudent(row.id).then(response => {
+        this.$notify({
+          title: '成功',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+        const index = this.list.indexOf(row)
+        this.list.splice(index, 1)
       })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
     },
     handleDownload() {
       this.downloadLoading = true
