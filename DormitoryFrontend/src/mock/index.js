@@ -34,10 +34,9 @@ Mock.mock(/\/article\/update/, 'post', articleAPI.updateArticle)
 
 // 学生相关
 Mock.mock(/\/student\/list/, 'get', studentAPI.getList)
-Mock.mock(/\/student\/detail/, 'get', studentAPI.getArticle)
-Mock.mock(/\/student\/pv/, 'get', studentAPI.getPv)
-Mock.mock(/\/student\/create/, 'post', studentAPI.createArticle)
-Mock.mock(/\/student\/update/, 'post', studentAPI.updateArticle)
+Mock.mock(/\/student\/delete/, 'post', studentAPI.deleteStudent)
+Mock.mock(/\/student\/create/, 'post', studentAPI.createStudent)
+Mock.mock(/\/student\/update/, 'post', studentAPI.updateStudent)
 
 // 建筑相关
 Mock.mock(/\/building\/list/, 'post', buildingAPI.getList)
