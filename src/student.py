@@ -32,6 +32,10 @@ def generate_student_info(student: Student) -> dict:
         "dormitory": (None if student.dormitory is None else{
             "id": student.dormitory_id,
             "number": student.dormitory.number,
+            "building": {
+                "id": student.dormitory.building_id,
+                "name": student.dormitory.building.name,
+            },
         }),
     }
 
