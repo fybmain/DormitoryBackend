@@ -1,7 +1,9 @@
 from typing import List
 from flask import g
-from peewee import fn
+from peewee import fn, DoesNotExist
 
+from .util import http
+from .global_obj import database as db
 from .model import Manager, Student
 from .model import Building
 from .model import Department
@@ -149,3 +151,22 @@ def get_permission_condition(allowed: List[str], model: type):
         condition = condition|get_self_condition(model)
 
     return condition
+
+
+class PermissionDenied(http.Forbidden):
+    def __init__(self):
+        super().__init__(reason="PermissionDenied")
+
+
+def check_permission_condition(obj: db.Model, condition):
+    model = obj.__class__
+    count = (
+        model
+        .select()
+        .where((model.id == obj.id) & condition)
+        .count()
+    )
+    if count<1:
+        raise PermissionDenied()
+    else:
+        return
