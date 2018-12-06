@@ -7,4 +7,5 @@ from . import error_handler
 from . import auth
 from . import permission
 
+from . import building
 from . import student
