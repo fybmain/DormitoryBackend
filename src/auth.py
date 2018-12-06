@@ -1,8 +1,8 @@
 import hashlib
-from typing import Union
+from typing import Union, Tuple, Optional
 from enum import Enum
-from flask import g
-from itsdangerous import TimedJSONWebSignatureSerializer
+from flask import g, request
+from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired
 
 from .util import http
 from .util import get_request_json
@@ -17,14 +17,24 @@ serializer = TimedJSONWebSignatureSerializer(
 
 
 class AuthRoleType(Enum):
+    anonymous = "Anonymous"
+
     manager = "Manager"
     student = "Student"
 
 
-class AuthInfo:
-    role: AuthRoleType
-    token: str
+class TokenStateType(Enum):
+    not_exist = "TokenNotExist"
+    broken = "BrokenToken"
+    expired = "ExpiredToken"
+    valid = "ValidToken"
 
+
+class AuthInfo:
+    token: str
+    token_state: TokenStateType
+
+    role: AuthRoleType
     obj: Union[Manager, Student]
 
 
@@ -59,9 +69,13 @@ def auth_by_password(role: AuthRoleType, obj: Union[Manager, Student]):
 
     if obj.password_hash == password_hash:
         auth_info = AuthInfo()
-        auth_info.role = role
+
         auth_info.token = generate_token(role, obj)
+        auth_info.token_state = TokenStateType.valid
+
+        auth_info.role = role
         auth_info.obj = obj
+
         g.auth_info = auth_info
         return make_auth_echo()
     else:
@@ -84,20 +98,72 @@ def generate_token(role: AuthRoleType, obj: Union[Manager, Student]):
     return serializer.dumps(info).decode('ASCII')
 
 
+def parse_token(token: str) -> Tuple[TokenStateType, Optional[AuthRoleType], Optional[int]]:
+    try:
+        info = serializer.loads(token)
+    except BadSignature:
+        return TokenStateType.broken, None, None
+    except SignatureExpired:
+        return TokenStateType.expired, None, None
+
+    return TokenStateType.valid, AuthRoleType(info["role"]), info["id"]
+
+
+def load_obj_by_id(role: AuthRoleType, id: int) -> Union[Manager, Student]:
+    if role == AuthRoleType.manager:
+        return Manager.get(id)
+    elif role == AuthRoleType.student:
+        return Student.get(id)
+    else:
+        raise ValueError()
+
+
 def make_auth_echo():
-    auth_info = g.auth_info
+    auth_info: AuthInfo = g.auth_info
     if auth_info.role == AuthRoleType.manager:
         manager: Manager = auth_info.obj
         result = {
             "token": auth_info.token,
+            "role": auth_info.role.value,
             "realName": manager.real_name,
         }
-    else:
-        assert auth_info.role == AuthRoleType.student
+    elif auth_info.role == AuthRoleType.student:
         student: Student = auth_info.obj
         result = {
             "token": auth_info.token,
+            "role": auth_info.role.value,
             "cardID": student.card_id,
             "realName": student.real_name,
         }
+    else:
+        result = {
+            "token": auth_info.token,
+            "role": auth_info.role.value,
+        }
     return http.Success(result=result)
+
+
+@app.before_request
+def add_auth_info():
+    auth_info: AuthInfo = AuthInfo()
+
+    header_name = app.config["AUTH_TOKEN_HTTP_HEADER"]
+    if header_name in request.headers:
+        token = request.headers[header_name]
+        auth_info.token = token
+
+        (state, role, id) = parse_token(token)
+        auth_info.token_state = state
+    else:
+        auth_info.token = None
+        auth_info.token_state = TokenStateType.not_exist
+
+    if auth_info.token_state == TokenStateType.valid:
+        obj = load_obj_by_id(role, id)
+        auth_info.role = role
+        auth_info.obj = obj
+    else:
+        auth_info.role = AuthRoleType.anonymous
+        auth_info.obj = None
+
+    g.auth_info = auth_info

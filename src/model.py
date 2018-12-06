@@ -43,15 +43,12 @@ class Dormitory(db.Model):
 class Manager(db.Model):
     password_hash = CharField(255, null=False)
 
+    building = ForeignKeyField(Building, null=True)
+
     leaved = BooleanField(null=False)
     real_name = CharField(255, null=False)
     enter_date = DateField(null=False)
     leave_date = DateField(null=True)
-
-
-class ManagerBuilding(db.Model):
-    manager = ForeignKeyField(Manager, null=False)
-    building = ForeignKeyField(Building, null=False)
 
 
 class Student(db.Model):
@@ -67,7 +64,7 @@ class Student(db.Model):
 
     leaved = BooleanField(null=False)
     abnormal = BooleanField(null=False)
-    dormitory = ForeignKeyField(Dormitory, null=False)
+    dormitory = ForeignKeyField(Dormitory, null=True)
 
 
 model_list = [
@@ -79,6 +76,5 @@ model_list = [
     WaterBill,
     Dormitory,
     Manager,
-    ManagerBuilding,
     Student,
 ]

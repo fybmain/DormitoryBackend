@@ -5,3 +5,6 @@ from . import model
 from . import error_handler
 
 from . import auth
+from . import permission
+
+from . import student
