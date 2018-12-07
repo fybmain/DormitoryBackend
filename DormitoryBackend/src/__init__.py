@@ -9,3 +9,4 @@ from . import permission
 
 from . import building
 from . import student
+from . import dormitory
