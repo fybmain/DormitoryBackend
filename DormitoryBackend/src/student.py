@@ -3,6 +3,7 @@ from typing import List
 from .util import http, get_request_json, generate_pagination_list, generate_all_list, get_filter_condition
 from .global_obj import app
 from .model import Student, Department, Dormitory
+from .auth import calc_password_hash
 from .permission import get_permission_condition, check_permission_condition, PermissionDenied
 
 
@@ -44,6 +45,11 @@ student_normal_properties = {
 
 student_filter_properties = dict(student_normal_properties, id={
     "type": "number",
+})
+
+
+student_updatable_properties = dict(student_normal_properties, password={
+    "type": "string",
 })
 
 
@@ -109,6 +115,24 @@ def get_student_list():
     ))
 
 
+def obj_process(obj: dict):
+    if "password" in obj:
+        password: str = obj["password"]
+        obj.pop("password")
+        password_hash = calc_password_hash(password)
+        obj["password_hash"] = password_hash
+
+    if "department" in obj:
+        department_id = obj["department"]
+        department = Department.get(id=department_id)
+        check_permission_condition(department, get_permission_condition(["Management"], Department))
+
+    if "dormitory" in obj:
+        dormitory_id = obj["dormitory"]
+        dormitory = Dormitory.get(id=dormitory_id)
+        check_permission_condition(dormitory, get_permission_condition(["Management"], Dormitory))
+
+
 @app.route("/student/update", methods=["POST"])
 def update_student_info():
     instance = get_request_json(schema={
@@ -128,16 +152,7 @@ def update_student_info():
         },
         "additionalProperties": False,
     })
-
-    if "department" in instance:
-        department_id = instance["department"]
-        department = Department.get(id=department_id)
-        check_permission_condition(department, get_permission_condition(["Management"], Department))
-
-    if "dormitory" in instance:
-        dormitory_id = instance["dormitory"]
-        dormitory = Dormitory.get(id=dormitory_id)
-        check_permission_condition(dormitory, get_permission_condition(["Management"], Dormitory))
+    obj_process(instance["obj"])
 
     allow_read_student = get_students(instance["filter"], ["Management", "Self"])
     if allow_read_student.count() < 1:
@@ -152,4 +167,30 @@ def update_student_info():
             setattr(student, key, value)
         student.save()
 
-    return http.Success(result=generate_all_list(allow_write_student, generate_student_info))
+    return http.Success()
+
+
+@app.route("/student/create", methods=["POST"])
+def create_student():
+    instance = get_request_json(schema={
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "obj": {
+                "type": "object",
+                "properties": student_updatable_properties,
+                "required": list(student_updatable_properties.keys()),
+                "additionalProperties": False,
+            },
+        },
+        "required": ["obj"],
+        "additionalProperties": False,
+    })
+    obj_process(instance["obj"])
+
+    student = Student()
+    for (key, value) in instance["obj"].items():
+        setattr(student, key, value)
+    student.abnormal = False
+    student.save()
+    return http.Success()
