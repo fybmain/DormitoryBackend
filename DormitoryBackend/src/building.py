@@ -39,6 +39,9 @@ def get_building_list():
             "filter": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "number",
+                    },
                     "name": {
                         "type": "string",
                     },
