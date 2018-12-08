@@ -32,19 +32,19 @@ student_normal_properties = {
         "format": "date",
     },
     "department": {
-        "type": "number",
+        "type": "integer",
     },
     "leaved": {
         "type": "boolean",
     },
     "dormitory": {
-        "type": "number",
+        "type": "integer",
     },
 }
 
 
 student_filter_properties = dict(student_normal_properties, id={
-    "type": "number",
+    "type": "integer",
 })
 
 
@@ -92,10 +92,10 @@ def get_student_list():
         "type": "object",
         "properties": {
             "page": {
-                "type": "number",
+                "type": "integer",
             },
             "limit": {
-                "type": "number",
+                "type": "integer",
             },
             "filter": {
                 "type": "object",
@@ -146,7 +146,7 @@ def update_student_info():
             },
             "obj": {
                 "type": "object",
-                "properties": student_normal_properties,
+                "properties": student_updatable_properties,
                 "additionalProperties": False,
             },
         },

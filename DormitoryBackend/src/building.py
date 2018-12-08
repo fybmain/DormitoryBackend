@@ -31,16 +31,16 @@ def get_building_list():
         "type": "object",
         "properties": {
             "page": {
-                "type": "number",
+                "type": "integer",
             },
             "limit": {
-                "type": "number",
+                "type": "integer",
             },
             "filter": {
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "number",
+                        "type": "integer",
                     },
                     "name": {
                         "type": "string",

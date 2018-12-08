@@ -12,19 +12,19 @@ dormitory_normal_properties = {
         "pattern": "^[0-9]+$",
     },
     "building": {
-        "type": "number",
+        "type": "integer",
     },
     "electricity_meter": {
-        "type": "number",
+        "type": "integer",
     },
     "water_meter": {
-        "type": "number",
+        "type": "integer",
     },
 }
 
 
 dormitory_filter_properties = dict(dormitory_normal_properties, id={
-    "type": "number",
+    "type": "integer",
 })
 
 
@@ -58,10 +58,10 @@ def get_dormitory_list():
         "type": "object",
         "properties": {
             "page": {
-                "type": "number",
+                "type": "integer",
             },
             "limit": {
-                "type": "number",
+                "type": "integer",
             },
             "filter": {
                 "type": "object",
