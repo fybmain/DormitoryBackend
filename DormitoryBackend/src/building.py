@@ -1,12 +1,10 @@
-from typing import Optional, Dict
-
 from .util import http, get_request_json, generate_all_list, generate_pagination_list, get_filter_condition
 from .global_obj import app
 from .model import Building
 from .permission import get_permission_condition
 
 
-def get_buildings(filter: Dict):
+def get_buildings(filter: dict):
     return Building.select().where(
         get_filter_condition(filter, Building)
         & get_permission_condition(["Management", "Self"], Building)
