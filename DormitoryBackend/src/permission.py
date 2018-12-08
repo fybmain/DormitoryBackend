@@ -1,10 +1,10 @@
 from typing import List
 from flask import g
-from peewee import fn, DoesNotExist
+from peewee import fn
 
 from .util import http
 from .global_obj import database as db
-from .model import Manager, Student
+from .model import Admin, Manager, Student
 from .model import Building
 from .model import Department
 from .model import Dormitory
@@ -15,8 +15,10 @@ from .auth import AuthRoleType, AuthInfo
 
 def get_management_condition(model: type):
     auth_info: AuthInfo = g.auth_info
-    if auth_info.role == AuthRoleType.manager:
-        manager: Manager = g.auth_info.obj
+    if auth_info.role == AuthRoleType.admin:
+        return True
+    elif auth_info.role == AuthRoleType.manager:
+        manager: Manager = auth_info.obj
 
         if issubclass(model, Building):
             return model.id == manager.building
@@ -69,6 +71,12 @@ def get_management_condition(model: type):
 
 def get_self_condition(model: type):
     auth_info: AuthInfo = g.auth_info
+    if auth_info.role == AuthRoleType.admin:
+        admin: Admin = auth_info.obj
+        if issubclass(model, Admin):
+            return model.id == admin.id
+        else:
+            return False
     if auth_info.role == AuthRoleType.manager:
         manager: Manager = auth_info.obj
         if issubclass(model, Manager):
@@ -142,6 +150,8 @@ def get_permission_condition(allowed: List[str], model: type):
 
     if "Anonymous" in allowed:
         condition = condition|(auth_info.role == AuthRoleType.anonymous)
+    if "Admin" in allowed:
+        condition = condition|(auth_info.role == AuthRoleType.admin)
     if "Manager" in allowed:
         condition = condition|(auth_info.role == AuthRoleType.manager)
     if "Student" in allowed:
@@ -168,7 +178,7 @@ def check_permission_condition(obj: db.Model, condition):
         .where((model.id == obj.id) & condition)
         .count()
     )
-    if count<1:
+    if count < 1:
         raise PermissionDenied()
     else:
         return
