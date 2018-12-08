@@ -7,7 +7,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, Signatur
 from .util import http
 from .util import get_request_json
 from .global_obj import app
-from .model import Manager, Student
+from .model import Admin, Manager, Student
 
 
 serializer = TimedJSONWebSignatureSerializer(
@@ -19,6 +19,7 @@ serializer = TimedJSONWebSignatureSerializer(
 class AuthRoleType(Enum):
     anonymous = "Anonymous"
 
+    admin = "Admin"
     manager = "Manager"
     student = "Student"
 
@@ -38,43 +39,46 @@ class AuthInfo:
     obj: Union[Manager, Student]
 
 
-@app.route("/auth/manager/real_name/<string:real_name>", methods=["POST"])
-def auth_student_by_real_name(real_name: str):
-    manager = Manager.get(real_name=real_name)
-
-    return auth_by_password(AuthRoleType.manager, manager)
-
-
-@app.route("/auth/student/card_id/<string:card_id>", methods=["POST"])
-def auth_student_by_card_id(card_id: str):
-    student = Student.get(card_id=card_id)
-
-    return auth_by_password(AuthRoleType.student, student)
-
-
-def auth_by_password(role: AuthRoleType, obj: Union[Manager, Student]):
+@app.route("/auth/login", methods=["POST"])
+def login():
     instance = get_request_json({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
+            "role": {
+                "type": "string",
+                "pattern": "^(Admin|Manager|Student)$",
+            },
+            "account": {
+                "type": "string",
+            },
             "password": {
                 "type": "string",
             },
         },
-        "required": ["password"],
+        "required": ["role", "account", "password"],
         "additionalProperties": False,
     })
 
+    role = AuthRoleType(instance["role"])
+    account = instance["account"]
+    if role == AuthRoleType.admin:
+        user = Admin.get(name=account)
+    elif role == AuthRoleType.manager:
+        user = Manager.get(real_name=account)
+    else:
+        user = Student.get(card_id=account)
+
     password_hash = calc_password_hash(instance["password"])
 
-    if obj.password_hash == password_hash:
+    if user.password_hash == password_hash:
         auth_info = AuthInfo()
 
-        auth_info.token = generate_token(role, obj)
+        auth_info.token = generate_token(role, user)
         auth_info.token_state = TokenStateType.valid
 
         auth_info.role = role
-        auth_info.obj = obj
+        auth_info.obj = user
 
         g.auth_info = auth_info
         return make_auth_echo()
@@ -110,7 +114,9 @@ def parse_token(token: str) -> Tuple[TokenStateType, Optional[AuthRoleType], Opt
 
 
 def load_obj_by_id(role: AuthRoleType, id: int) -> Union[Manager, Student]:
-    if role == AuthRoleType.manager:
+    if role == AuthRoleType.admin:
+        return Admin.get(id)
+    elif role == AuthRoleType.manager:
         return Manager.get(id)
     elif role == AuthRoleType.student:
         return Student.get(id)
@@ -120,20 +126,27 @@ def load_obj_by_id(role: AuthRoleType, id: int) -> Union[Manager, Student]:
 
 def make_auth_echo():
     auth_info: AuthInfo = g.auth_info
-    if auth_info.role == AuthRoleType.manager:
+    if auth_info.role == AuthRoleType.admin:
+        admin: Admin = auth_info.obj
+        result = {
+            "token": auth_info.token,
+            "role": auth_info.role.value,
+            "name": admin.name,
+        }
+    elif auth_info.role == AuthRoleType.manager:
         manager: Manager = auth_info.obj
         result = {
             "token": auth_info.token,
             "role": auth_info.role.value,
-            "realName": manager.real_name,
+            "real_name": manager.real_name,
         }
     elif auth_info.role == AuthRoleType.student:
         student: Student = auth_info.obj
         result = {
             "token": auth_info.token,
             "role": auth_info.role.value,
-            "cardID": student.card_id,
-            "realName": student.real_name,
+            "card_id": student.card_id,
+            "real_name": student.real_name,
         }
     else:
         result = {
@@ -167,3 +180,8 @@ def add_auth_info():
         auth_info.obj = None
 
     g.auth_info = auth_info
+
+
+@app.route("/auth/echo", methods=["POST"])
+def auth_echo_request_handler():
+    return make_auth_echo()

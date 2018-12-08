@@ -5,6 +5,11 @@ from peewee import BooleanField
 from src.global_obj import database as db
 
 
+class Admin(db.Model):
+    name = CharField(255, null=False)
+    password_hash = CharField(255, null=False)
+
+
 class Building(db.Model):
     name = CharField(255, null=False)
 
