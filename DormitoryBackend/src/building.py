@@ -1,11 +1,16 @@
-from .util import http, get_request_json, generate_all_list, generate_pagination_list
+from typing import Optional, Dict
+
+from .util import http, get_request_json, generate_all_list, generate_pagination_list, get_filter_condition
 from .global_obj import app
 from .model import Building
 from .permission import get_permission_condition
 
 
-def get_buildings():
-    return Building.select().where(get_permission_condition(["Management", "Self"], Building))
+def get_buildings(filter: Dict):
+    return Building.select().where(
+        get_filter_condition(filter, Building)
+        & get_permission_condition(["Management", "Self"], Building)
+    )
 
 
 def generate_building_info(building: Building) -> dict:
@@ -17,13 +22,13 @@ def generate_building_info(building: Building) -> dict:
 
 @app.route("/building/all", methods=["POST"])
 def get_building_all():
-    buildings = get_buildings()
+    buildings = get_buildings({})
     return http.Success(result=generate_all_list(buildings, generate_building_info))
 
 
 @app.route("/building/list", methods=["POST"])
 def get_building_list():
-    request = get_request_json(schema={
+    instance = get_request_json(schema={
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
@@ -33,10 +38,24 @@ def get_building_list():
             "limit": {
                 "type": "number",
             },
+            "filter": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                    },
+                },
+                "additionalProperties": False,
+            },
         },
-        "required": ["page", "limit"],
+        "required": ["page", "limit", "filter"],
         "additionalProperties": False,
     })
-    buildings = get_buildings()
-    result = generate_pagination_list(buildings, generate_building_info, **request)
+    buildings = get_buildings(instance["filter"])
+    result = generate_pagination_list(
+        objs=buildings,
+        instance_generator=generate_building_info,
+        page=instance["page"],
+        limit=instance["limit"]
+    )
     return http.Success(result=result)
