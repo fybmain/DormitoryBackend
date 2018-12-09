@@ -1,6 +1,6 @@
 from typing import List
 
-from .util import http, get_request_json, generate_pagination_list, generate_all_list, get_filter_condition
+from .util import http, get_request_json, generate_pagination_list, get_filter_condition
 from .global_obj import app
 from .model import Student, Department, Dormitory
 from .auth import calc_password_hash
