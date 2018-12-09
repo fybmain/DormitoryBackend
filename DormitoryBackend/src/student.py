@@ -28,8 +28,15 @@ student_normal_properties = {
         "format": "date",
     },
     "graduate_date": {
-        "type": "string",
-        "format": "date",
+        "oneOf": [
+            {
+                "type": "null",
+            },
+            {
+                "type": "string",
+                "format": "date",
+            },
+        ],
     },
     "department": {
         "type": "integer",
@@ -38,7 +45,14 @@ student_normal_properties = {
         "type": "boolean",
     },
     "dormitory": {
-        "type": "integer",
+        "oneOf": [
+            {
+                "type": "null",
+            },
+            {
+                "type": "integer",
+            },
+        ],
     },
 }
 
@@ -129,8 +143,9 @@ def obj_process(obj: dict):
 
     if "dormitory" in obj:
         dormitory_id = obj["dormitory"]
-        dormitory = Dormitory.get(id=dormitory_id)
-        check_permission_condition(dormitory, get_permission_condition(["Management"], Dormitory))
+        if dormitory_id is not None:
+            dormitory = Dormitory.get(id=dormitory_id)
+            check_permission_condition(dormitory, get_permission_condition(["Management"], Dormitory))
 
 
 @app.route("/student/update", methods=["POST"])

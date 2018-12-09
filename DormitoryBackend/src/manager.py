@@ -31,11 +31,11 @@ manager_normal_properties = {
     "leave_date": {
         "oneOf": [
             {
-                "type": "string",
-                "format": "date",
+                "type": "null",
             },
             {
-                "type": "null",
+                "type": "string",
+                "format": "date",
             },
         ],
     },
