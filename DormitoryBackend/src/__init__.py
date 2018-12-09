@@ -8,5 +8,6 @@ from . import auth
 from . import permission
 
 from . import building
+from . import departement
 from . import student
 from . import dormitory
