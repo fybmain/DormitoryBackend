@@ -9,5 +9,6 @@ from . import permission
 
 from . import building
 from . import departement
+from . import admin
 from . import student
 from . import dormitory

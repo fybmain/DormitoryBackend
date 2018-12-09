@@ -21,7 +21,9 @@ def get_management_condition(model: type):
     elif auth_info.role == AuthRoleType.manager:
         manager: Manager = auth_info.obj
 
-        if issubclass(model, Building):
+        if issubclass(model, Admin):
+            return False
+        elif issubclass(model, Building):
             return model.id == manager.building
         elif issubclass(model, Department):
             return False
@@ -159,9 +161,9 @@ def get_permission_condition(allowed: List[str], model: type):
         condition = condition|(auth_info.role == AuthRoleType.student)
 
     if "Management" in allowed:
-        condition = condition|get_management_condition(model)
+        condition = condition|(get_management_condition(model))
     if "Self" in allowed:
-        condition = condition|get_self_condition(model)
+        condition = condition|(get_self_condition(model))
 
     return condition
 
