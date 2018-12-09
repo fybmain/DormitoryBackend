@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import List
 from flask import g
 from peewee import fn
@@ -182,3 +183,20 @@ def check_permission_condition(obj: db.Model, condition):
         raise PermissionDenied()
     else:
         return
+
+
+def require_role(allowed_rule: List[str]):
+
+    def decorator(func):
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            auth_info: AuthInfo = g.auth_info
+            if auth_info.role.value in allowed_rule:
+                return func(*args, **kwargs)
+            else:
+                raise PermissionDenied()
+
+        return wrapper
+
+    return decorator
