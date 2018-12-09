@@ -159,4 +159,6 @@ def create_dormitory():
         setattr(dormitory, key, value)
 
     dormitory.save()
-    return http.Success()
+    return http.Success(result={
+        "id": dormitory.id,
+    })

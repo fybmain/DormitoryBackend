@@ -130,4 +130,6 @@ def create_building():
         setattr(building, key, value)
 
     building.save()
-    return http.Success()
+    return http.Success(result={
+        "id": building.id,
+    })

@@ -193,4 +193,6 @@ def create_student():
         setattr(student, key, value)
     student.abnormal = False
     student.save()
-    return http.Success()
+    return http.Success(result={
+        "id": student.id,
+    })
