@@ -188,6 +188,18 @@ export const asyncRouterMap = [
     ]
   },
   {
+    path: '/dormitory',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/dormitory/list'),
+        name: 'Dormitory',
+        meta: { title: 'Dormitory', icon: 'people' }
+      }
+    ]
+  },
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/list',

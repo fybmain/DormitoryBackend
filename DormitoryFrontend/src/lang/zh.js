@@ -46,6 +46,7 @@ export default {
     customTreeTable: '自定义树表',
     Student: '学生管理',
     Building: '建筑管理',
+    Dormitory: '宿舍管理',
     tab: 'Tab',
     form: '表单',
     createArticle: '创建文章',

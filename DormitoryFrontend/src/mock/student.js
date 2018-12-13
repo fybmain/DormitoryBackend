@@ -25,14 +25,19 @@ export default {
   getList: config => {
     const { buildingName, status, dormId, department, name, studentId, page = 1, limit = 20 } = param2Obj(config.url)
     console.log(param2Obj(config.url))
+    console.log('inmock')
     const mockList = List.filter(item => {
-      console.log(item.buildingName)
+      // console.log(item.buildingName)
       if (department !== '全部' && item.department !== department) { return false }
       if (status !== '全部' && item.status !== status) { return false }
       if (buildingName !== '全部' && item.buildingName !== buildingName) { return false }
       if (dormId && item.dormId !== +dormId) { return false }
-      if (name && item.name !== name) { return false }
-      if (studentId && parseInt(studentId) !== item.studentId) return false
+      if (name && item.name !== name) {
+        console.log(name)
+        return false
+      }
+      if (studentId && +studentId !== item.studentId) return false
+      console.log(item)
       return true
     })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))

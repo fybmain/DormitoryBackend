@@ -2,6 +2,7 @@ import Mock from 'mockjs'
 import loginAPI from './login'
 import articleAPI from './article'
 import studentAPI from './student'
+import dormitoryAPI from './dormitory'
 import remoteSearchAPI from './remoteSearch'
 import transactionAPI from './transaction'
 import buildingAPI from './building'
@@ -43,6 +44,12 @@ Mock.mock(/\/building\/list/, 'post', buildingAPI.getList)
 Mock.mock(/\/building\/delete/, 'get', buildingAPI.deleteBuilding)
 Mock.mock(/\/building\/create/, 'post', buildingAPI.createBuilding)
 Mock.mock(/\/building\/update/, 'post', buildingAPI.updateBuilding)
+
+// 宿舍相关
+Mock.mock(/\/dormitory\/list/, 'post', dormitoryAPI.getList)
+Mock.mock(/\/dormitory\/delete/, 'get', dormitoryAPI.deleteDormitory)
+Mock.mock(/\/dormitory\/create/, 'post', dormitoryAPI.createDormitory)
+Mock.mock(/\/dormitory\/update/, 'post', dormitoryAPI.updateDormitory)
 
 // 搜索相关/building/list/all
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)

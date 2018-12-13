@@ -242,7 +242,7 @@ export default {
         this.buildingOptions = this.buildingOptions.filter(function(element, index, self) {
           return self.indexOf(element) === index
         })
-        console.log(this.buildingOptions)
+        // console.log(this.buildingOptions)
       })
     },
     handleFilter() {

@@ -88,7 +88,8 @@
 </template>
 
 <script>
-import { fetchList, fetchStudent, createDormitory, updateDormitory } from '@/api/dormitory'
+import { fetchList, createDormitory, updateDormitory } from '@/api/dormitory'
+import { fetchList as fetchStudentList } from '@/api/student'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -227,7 +228,18 @@ export default {
       this.list.splice(index, 1)
     },
     handleFetchStu(dormNum) {
-      fetchStudent(dormNum).then(response => {
+      const query = {
+        page: 1,
+        limit: 20,
+        department: '全部',
+        status: '全部',
+        name: undefined,
+        studentId: undefined,
+        dormId: dormNum,
+        buildingName: '全部'
+      }
+      fetchStudentList(query).then(response => {
+        console.log(response.data)
         this.stuData = response.data.stuData
         this.dialogStuVisible = true
       })

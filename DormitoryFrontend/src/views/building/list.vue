@@ -41,8 +41,8 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="max-width: 300px; margin-left:50px;">
         <el-form-item :label="$t('building.name')" prop="title">
           <el-input v-model="temp.buildingName"/>
         </el-form-item>
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { fetchBuildingList, createBuilding, updateBuilding, deleteBuilding } from '@/api/building'
+import { fetchList, createBuilding, updateBuilding, deleteBuilding } from '@/api/building'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -98,7 +98,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchBuildingList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 

@@ -8,6 +8,13 @@ export function fetchList(query) {
   })
 }
 
+export function fetchAll() {
+  return request({
+    url: '/building/list/all',
+    method: 'get'
+  })
+}
+
 export function deleteBuilding(id) {
   return request({
     url: '/building/delete',
