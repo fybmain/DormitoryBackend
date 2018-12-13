@@ -1,10 +1,12 @@
 import request from '@/utils/request'
 
-export function loginByUsername(account, password) {
+export function loginByUsername(account, password, role) {
   const data = {
     account,
-    password
+    password,
+    role
   }
+  console.log(data)
   return request({
     url: '/auth/login',
     method: 'post',
@@ -20,10 +22,13 @@ export function logout() {
 }
 
 export function getUserInfo(token) {
+  const data = {
+    token
+  }
   return request({
     url: '/auth/getinfo',
-    method: 'get',
-    params: { token }
+    method: 'post',
+    data
   })
 }
 

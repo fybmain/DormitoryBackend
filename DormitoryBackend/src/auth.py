@@ -39,8 +39,56 @@ class AuthInfo:
     obj: Union[Manager, Student]
 
 
+@app.route("/auth/getinfo", methods=["POST"])
+def getinfo():
+    from flask import request
+    print(request.get_json())
+    if not(request.get_json()):
+        return http.Success()
+    instance = get_request_json({
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "token": {
+                "type": "string",
+            },
+        },
+        "required": ["token"],
+        "additionalProperties": False,
+    })
+
+    token_decode = parse_token(instance['token'])
+    if not(token_decode[1]):
+        return http.Success()
+    print(token_decode[1].value)
+    print(token_decode[2])
+    role = token_decode[1]
+    if role == AuthRoleType.admin:
+        user = Admin.get(id=token_decode[2])
+        result = {
+            "roles": [token_decode[1].name],
+            "name": user.name
+        }
+    elif role == AuthRoleType.manager:
+        user = Manager.get(id=token_decode[2])
+        result = {
+            "roles": [token_decode[1].name],
+            "name": user.real_name
+        }
+    else:
+        user = Student.get(id=token_decode[2])
+        result = {
+            "roles": [token_decode[1].name],
+            "name": user.real_name
+        }
+
+    return http.Success(result=result)
+
+
 @app.route("/auth/login", methods=["POST"])
 def login():
+    from flask import request
+    print(request.get_json())
     instance = get_request_json({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
@@ -130,23 +178,23 @@ def make_auth_echo():
         admin: Admin = auth_info.obj
         result = {
             "token": auth_info.token,
-            "role": auth_info.role.value,
+            "role": [auth_info.role.value],
             "name": admin.name,
         }
     elif auth_info.role == AuthRoleType.manager:
         manager: Manager = auth_info.obj
         result = {
             "token": auth_info.token,
-            "role": auth_info.role.value,
-            "real_name": manager.real_name,
+            "role": [auth_info.role.value],
+            "name": manager.real_name,
         }
     elif auth_info.role == AuthRoleType.student:
         student: Student = auth_info.obj
         result = {
             "token": auth_info.token,
-            "role": auth_info.role.value,
+            "role": [auth_info.role.value],
             "card_id": student.card_id,
-            "real_name": student.real_name,
+            "name": student.real_name,
         }
     else:
         result = {
