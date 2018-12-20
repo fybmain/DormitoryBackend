@@ -42,7 +42,6 @@ class AuthInfo:
 @app.route("/auth/getinfo", methods=["POST"])
 def getinfo():
     from flask import request
-    print(request.get_json())
     if not(request.get_json()):
         return http.Success()
     instance = get_request_json({
@@ -57,28 +56,25 @@ def getinfo():
         "additionalProperties": False,
     })
 
-    token_decode = parse_token(instance['token'])
-    if not(token_decode[1]):
+    valid, role, user_id = parse_token(instance['token'])
+    if not valid:
         return http.Success()
-    print(token_decode[1].value)
-    print(token_decode[2])
-    role = token_decode[1]
     if role == AuthRoleType.admin:
-        user = Admin.get(id=token_decode[2])
+        user = Admin.get(id=user_id)
         result = {
-            "roles": [token_decode[1].name],
+            "roles": [role.value],
             "name": user.name
         }
     elif role == AuthRoleType.manager:
-        user = Manager.get(id=token_decode[2])
+        user = Manager.get(id=user_id)
         result = {
-            "roles": [token_decode[1].name],
+            "roles": [role.value],
             "name": user.real_name
         }
     else:
-        user = Student.get(id=token_decode[2])
+        user = Student.get(id=user_id)
         result = {
-            "roles": [token_decode[1].name],
+            "roles": [role.value],
             "name": user.real_name
         }
 

@@ -1,4 +1,4 @@
-import { loginByUsername, logout, getUserInfo } from '@/api/login'
+import { loginByUsername, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -69,15 +69,15 @@ const user = {
           if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
           }
-          const data = response.data.result
-          console.log(data)
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          const result = response.data.result
+          console.log(result)
+          if (result.roles && result.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+            commit('SET_ROLES', result.roles)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
 
-          commit('SET_NAME', data.name)
+          commit('SET_NAME', result.name)
           // commit('SET_AVATAR', data.avatar)
           // commit('SET_INTRODUCTION', data.introduction)
           resolve(response)
