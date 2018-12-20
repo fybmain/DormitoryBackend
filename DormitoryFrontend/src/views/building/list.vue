@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-row type="flex" justify="space-between">
         <div>
-          <el-input :placeholder="$t('building.name')" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <el-input :placeholder="$t('building.name')" v-model="listQuery.filter.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('building.search') }}</el-button>
         </div>
         <div>
@@ -42,9 +42,9 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="max-width: 300px; margin-left:50px;">
+      <el-form ref="dataForm" :rules="rules" :model="editingBuilding" label-position="left" label-width="70px" style="max-width: 300px; margin-left:50px;">
         <el-form-item :label="$t('building.name')" prop="title">
-          <el-input v-model="temp.name"/>
+          <el-input v-model="editingBuilding.name"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -76,14 +76,13 @@ export default {
         page: 1,
         limit: 20,
         filter: {
-          name: undefined
+          name: ''
         }
-      },
-      temp: {
-        name: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
+      editingBuilding: undefined,
+
       textMap: {
         update: '修改',
         create: '新建'
@@ -94,13 +93,24 @@ export default {
       downloadLoading: false
     }
   },
+  computed: {
+    listQueryForBackend() {
+      const listQuery = JSON.parse(JSON.stringify(this.listQuery)) // deep clone
+      if (!listQuery.filter.name) {
+        listQuery.filter.name = undefined
+      }
+      return listQuery
+    }
+  },
+
   created() {
+    this.resetDialog()
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      fetchList(this.listQueryForBackend).then(response => {
         this.list = response.data.result.list
         this.total = response.data.result.total_count
 
@@ -114,13 +124,13 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-    resetTemp() {
-      this.temp = {
+    resetDialog() {
+      this.editingBuilding = {
         name: ''
       }
     },
     handleCreate() {
-      this.resetTemp()
+      this.resetDialog()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -130,8 +140,12 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createBuilding(this.temp).then((id) => {
-            this.list.unshift(this.temp)
+          const requestData = {
+            obj: this.editingBuilding
+          }
+          createBuilding(requestData).then((id) => {
+            this.editingBuilding.id = id
+            this.list.unshift(this.editingBuilding)
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
@@ -144,7 +158,7 @@ export default {
       })
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
+      this.editingBuilding = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -156,17 +170,17 @@ export default {
         if (valid) {
           const requestData = {
             filter: {
-              id: this.temp.id
+              id: this.editingBuilding.id
             },
             obj: {
-              name: this.temp.name
+              name: this.editingBuilding.name
             }
           }
           updateBuilding(requestData).then(() => {
             for (const v of this.list) {
-              if (v.id === this.temp.id) {
+              if (v.id === this.editingBuilding.id) {
                 const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
+                this.list.splice(index, 1, this.editingBuilding)
                 break
               }
             }

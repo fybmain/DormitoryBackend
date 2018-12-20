@@ -26,10 +26,14 @@ export function deleteBuilding(id) {
 }
 
 export function createBuilding(data) {
-  return request({
-    url: '/building/create',
-    method: 'post',
-    data
+  return new Promise((resolve) => {
+    request({
+      url: '/building/create',
+      method: 'post',
+      data
+    }).then((response) => {
+      resolve(response.data.result.id)
+    })
   })
 }
 
