@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-row type="flex" justify="space-between">
         <div>
-          <el-input :placeholder="$t('building.name')" v-model="listQuery.BuildingName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <el-input :placeholder="$t('building.name')" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('building.search') }}</el-button>
         </div>
         <div>
@@ -27,7 +27,7 @@
       </el-table-column>
       <el-table-column :label="$t('building.name')" min-width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.buildingName }}</span>
+          <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('building.actions')" align="center" min-width="230" class-name="small-padding fixed-width">
@@ -75,10 +75,12 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        buildingName: undefined
+        filter: {
+          name: undefined
+        }
       },
       temp: {
-        buildingName: ''
+        name: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -99,8 +101,8 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+        this.list = response.data.result.list
+        this.total = response.data.result.total_count
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -114,7 +116,7 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        buildingName: undefined
+        name: ''
       }
     },
     handleCreate() {

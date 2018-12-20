@@ -4,7 +4,7 @@ export function fetchList(query) {
   return request({
     url: '/building/list',
     method: 'post',
-    params: query
+    data: query
   })
 }
 
@@ -19,7 +19,9 @@ export function deleteBuilding(id) {
   return request({
     url: '/building/delete',
     method: 'get',
-    params: { id }
+    data: {
+      filter: { id }
+    }
   })
 }
 
