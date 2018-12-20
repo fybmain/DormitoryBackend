@@ -11,14 +11,14 @@ export function fetchList(query) {
 export function fetchAll() {
   return request({
     url: '/building/list/all',
-    method: 'get'
+    method: 'post'
   })
 }
 
 export function deleteBuilding(id) {
   return request({
     url: '/building/delete',
-    method: 'get',
+    method: 'post',
     data: {
       filter: { id }
     }

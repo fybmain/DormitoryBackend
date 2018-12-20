@@ -44,7 +44,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="max-width: 300px; margin-left:50px;">
         <el-form-item :label="$t('building.name')" prop="title">
-          <el-input v-model="temp.buildingName"/>
+          <el-input v-model="temp.name"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -154,8 +154,15 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateBuilding(tempData).then(() => {
+          const requestData = {
+            filter: {
+              id: this.temp.id
+            },
+            obj: {
+              name: this.temp.name
+            }
+          }
+          updateBuilding(requestData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
