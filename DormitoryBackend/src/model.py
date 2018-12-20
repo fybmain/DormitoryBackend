@@ -45,6 +45,12 @@ class Dormitory(db.Model):
     water_meter = ForeignKeyField(WaterMeter, null=False)
 
 
+class DormitoryRating(db.Model):
+    dormitory = ForeignKeyField(Dormitory, null=False)
+    date = DateField(null=False)
+    rating = DecimalField(10, 1, null=False)
+
+
 class Manager(db.Model):
     password_hash = CharField(255, null=False)
 
@@ -61,7 +67,7 @@ class Student(db.Model):
     password_hash = CharField(255, null=False)
 
     real_name = CharField(255, null=False)
-    gender = CharField(20, null=False)
+    gender = BooleanField(null=False)
     birth_date = DateField(null=False)
     enroll_date = DateField(null=False)
     graduate_date = DateField(null=True)
