@@ -165,12 +165,14 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        department: '全部',
-        status: '全部',
-        name: undefined,
-        studentId: undefined,
-        dormId: undefined,
-        buildingName: '全部'
+        filter: {
+          department: undefined,
+          status: undefined,
+          real_name: undefined,
+          card_id: undefined,
+          dormitory: undefined,
+          buildingName: undefined
+        }
       },
       departmentOptions: ['全部', '教育学院', '心理学院', '文学院', '新闻传播学院', '历史文化学院', '马克思主义学院',
         '经济与工商管理学院', '公共管理学院', '法学院', '社会学院', '外国语学院', '教育信息技术学院',

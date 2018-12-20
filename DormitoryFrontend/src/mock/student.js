@@ -24,8 +24,6 @@ for (let i = 0; i < count; i++) {
 export default {
   getList: config => {
     const { buildingName, status, dormId, department, name, studentId, page = 1, limit = 20 } = param2Obj(config.url)
-    console.log(param2Obj(config.url))
-    console.log('inmock')
     const mockList = List.filter(item => {
       // console.log(item.buildingName)
       if (department !== '全部' && item.department !== department) { return false }

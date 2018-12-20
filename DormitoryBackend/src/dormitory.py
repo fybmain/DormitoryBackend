@@ -40,7 +40,7 @@ def get_dormitories(filter: dict, allowed: List[str]):
 
 def generate_dormitory_info(dormitory: Dormitory):
     return {
-        "id": dormitory.id,
+            "id": dormitory.id,
         "number": dormitory.number,
         "building": {
             "id": dormitory.building_id,

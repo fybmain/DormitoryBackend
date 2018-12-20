@@ -166,6 +166,7 @@ export const asyncRouterMap = [
   {
     path: '/student',
     component: Layout,
+
     children: [
       {
         path: 'list',
@@ -178,6 +179,7 @@ export const asyncRouterMap = [
   {
     path: '/building',
     component: Layout,
+    roles: ['admin'],
     children: [
       {
         path: 'list',
