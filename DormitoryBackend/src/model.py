@@ -67,7 +67,7 @@ class Student(db.Model):
     password_hash = CharField(255, null=False)
 
     real_name = CharField(255, null=False)
-    gender = CharField(20, null=False)
+    gender = BooleanField(null=False)
     birth_date = DateField(null=False)
     enroll_date = DateField(null=False)
     graduate_date = DateField(null=True)
