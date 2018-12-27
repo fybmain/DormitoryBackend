@@ -1,17 +1,17 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function fetchList(data) {
   return request({
     url: '/building/list',
     method: 'post',
-    data: query
+    data
   })
 }
 
 export function fetchAll() {
   return request({
-    url: '/building/list/all',
-    method: 'get'
+    url: '/building/all',
+    method: 'post'
   })
 }
 

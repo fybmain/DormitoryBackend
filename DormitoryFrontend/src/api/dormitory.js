@@ -4,15 +4,17 @@ export function fetchList(query) {
   return request({
     url: '/dormitory/list',
     method: 'post',
-    params: query
+    data: query
   })
 }
 
 export function deleteDormitory(id) {
   return request({
     url: '/dormitory/delete',
-    method: 'get',
-    params: { id }
+    method: 'post',
+    data: {
+      filter: { id }
+    }
   })
 }
 
@@ -29,5 +31,12 @@ export function updateDormitory(data) {
     url: '/dormitory/update',
     method: 'post',
     data
+  })
+}
+
+export function fetchDepartment() {
+  return request({
+    url: '/department/all',
+    method: 'post'
   })
 }

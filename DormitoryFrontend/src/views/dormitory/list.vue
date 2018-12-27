@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-row type="flex" justify="space-between">
         <div>
-          <el-input :placeholder="$t('dormitory.dormNum')" v-model="listQuery.DormNum" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <el-input :placeholder="$t('dormitory.dormNum')" v-model="listQuery.filter.number" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-input :placeholder="$t('dormitory.buildingName')" v-model="listQuery.BuildingName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('dormitory.search') }}</el-button>
         </div>
@@ -23,22 +23,22 @@
       style="width: 100%;">
       <el-table-column :label="$t('dormitory.dormNum')" prop="id" sortable="custom" align="center" width="65">
         <template slot-scope="scope">
-          <span>{{ scope.row.DormNum }}</span>
+          <span>{{ scope.row.number }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('dormitory.buildingName')" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.BuildingName }}</span>
+          <span>{{ scope.row.building.name }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('dormitory.waterMeterId')" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.WaterMeterId }}</span>
+          <span>{{ scope.row.water_meter }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('dormitory.electricMeterId')" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.ElectricMeterId }}</span>
+          <span>{{ scope.row.electricity_meter }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('dormitory.actions')" align="center" min-width="250" class-name="small-padding fixed-width">
@@ -106,8 +106,10 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        DormNum: undefined,
-        BuildingName: undefined
+        filter: {
+          number: undefined,
+          building: undefined
+        }
       },
       temp: {
         DormNum: undefined,
@@ -132,15 +134,25 @@ export default {
       downloadLoading: false
     }
   },
+  computed: {
+    listQueryForBackend() {
+      const listQuery = JSON.parse(JSON.stringify(this.listQuery)) // deep clone
+      if (!listQuery.filter.number) {
+        listQuery.filter.number = undefined
+      }
+      return listQuery
+    }
+  },
+
   created() {
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      fetchList(this.listQueryForBackend).then(response => {
+        this.list = response.data.result.list
+        this.total = response.data.result.total_count
 
         // Just to simulate the time of the request
         setTimeout(() => {

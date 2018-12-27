@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function fetchList(data) {
   return request({
     url: '/student/list',
     method: 'post',
-    params: query
+    data
   })
 }
 

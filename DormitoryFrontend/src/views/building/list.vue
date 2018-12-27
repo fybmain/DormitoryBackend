@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { fetchList, createBuilding, updateBuilding, deleteBuilding } from '@/api/building'
+import { fetchList, createBuilding, updateBuilding } from '@/api/building'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -78,7 +78,8 @@ export default {
         }
       },
       temp: {
-        name: ''
+        name: '',
+        filter: {}
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -114,7 +115,8 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        name: ''
+        name: '',
+        filter: {}
       }
     },
     handleCreate() {
