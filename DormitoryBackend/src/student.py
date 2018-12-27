@@ -17,7 +17,7 @@ student_normal_properties = {
     },
     "gender": {
         "type": "string",
-        "pattern": "^(Male|Female)$",
+        "pattern": "^(男|女)$",
     },
     "birth_date": {
         "type": "string",
@@ -78,7 +78,7 @@ def generate_student_info(student: Student) -> dict:
     return {
         "card_id": student.card_id,
         "real_name": student.real_name,
-        "gender": ("Female" if student.gender else "Male"),
+        "gender": ("女" if student.gender else "男"),
         "birth_date": student.birth_date,
         "enroll_date": student.enroll_date,
         "graduate_date": student.graduate_date,
@@ -132,7 +132,7 @@ def get_student_list():
 def obj_process(obj: dict):
     if "gender" in obj:
         gender_str: str = obj["gender"]
-        gender = (gender_str == "Female")
+        gender = (gender_str == "女")
         obj["gender"] = gender
 
     if "password" in obj:
