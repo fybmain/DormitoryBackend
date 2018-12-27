@@ -15,16 +15,6 @@ export function fetchAll() {
   })
 }
 
-export function deleteBuilding(id) {
-  return request({
-    url: '/building/delete',
-    method: 'get',
-    data: {
-      filter: { id }
-    }
-  })
-}
-
 export function createBuilding(data) {
   return request({
     url: '/building/create',

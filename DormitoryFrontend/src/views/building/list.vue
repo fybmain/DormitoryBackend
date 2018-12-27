@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-row type="flex" justify="space-between">
         <div>
-          <el-input :placeholder="$t('building.name')" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <el-input :placeholder="$t('building.name')" v-model="listQuery.filter.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('building.search') }}</el-button>
         </div>
         <div>
@@ -33,8 +33,6 @@
       <el-table-column :label="$t('building.actions')" align="center" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('building.edit') }}</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{ $t('building.delete') }}
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -44,7 +42,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="max-width: 300px; margin-left:50px;">
         <el-form-item :label="$t('building.name')" prop="title">
-          <el-input v-model="temp.buildingName"/>
+          <el-input v-model="temp.name"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -172,18 +170,6 @@ export default {
             })
           })
         }
-      })
-    },
-    handleDelete(row) {
-      deleteBuilding(row.id).then(() => {
-        this.$notify({
-          title: '成功',
-          message: '删除成功',
-          type: 'success',
-          duration: 2000
-        })
-        const index = this.list.indexOf(row)
-        this.list.splice(index, 1)
       })
     },
     handleDownload() {
