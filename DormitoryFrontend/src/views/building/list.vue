@@ -78,8 +78,7 @@ export default {
         }
       },
       temp: {
-        name: '',
-        filter: {}
+        name: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -115,8 +114,7 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        name: '',
-        filter: {}
+        name: ''
       }
     },
     handleCreate() {
@@ -128,9 +126,11 @@ export default {
       })
     },
     createData() {
+      console.log({ obj: this.temp })
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createBuilding(this.temp).then((id) => {
+          createBuilding({ obj: this.temp }).then((response) => {
+            this.temp.id = response.data.result.id
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -154,8 +154,11 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          console.log(this.temp)
           const tempData = Object.assign({}, this.temp)
-          updateBuilding(tempData).then(() => {
+          console.log(123123)
+          console.log(tempData)
+          updateBuilding({ obj: { name: tempData.name }, filter: { id: tempData.id }}).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)

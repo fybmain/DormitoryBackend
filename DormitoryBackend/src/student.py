@@ -76,6 +76,7 @@ def get_students(filter: dict, allowed: List[str]):
 
 def generate_student_info(student: Student) -> dict:
     return {
+        "id": student.id,
         "card_id": student.card_id,
         "real_name": student.real_name,
         "gender": ("女" if student.gender else "男"),

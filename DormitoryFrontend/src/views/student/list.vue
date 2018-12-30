@@ -6,12 +6,14 @@
           <el-input :placeholder="$t('student.studentid')" v-model="listQuery.filter.card_id" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-input :placeholder="$t('student.name')" v-model="listQuery.filter.real_name" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-select v-model="listQuery.filter.department" :placeholder="$t('student.department')" clearable style="width: 170px" class="filter-item">
-            <el-option v-for="item in departmentOptions" :key="item" :label="item" :value="item"/>
+            <el-option v-for="item in departmentOptions" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
-          <el-select v-model="listQuery.filter.buildingName" :placeholder="$t('student.buildingname')" clearable style="width: 100px" class="filter-item">
-            <el-option v-for="item in buildingOptions" :key="item" :label="item" :value="item"/>
+          <el-select v-model="building" :placeholder="$t('student.buildingname')" clearable style="width: 100px" class="filter-item" @change="getDormitory">
+            <el-option v-for="item in buildingOptions" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
-          <el-input :placeholder="$t('student.dormid')" v-model="listQuery.filter.dormitoryid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <el-select v-model="listQuery.filter.dormitory" :placeholder="$t('student.dormid')" clearable style="width: 100px" class="filter-item">
+            <el-option v-for="item in dormitoryOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          </el-select>
           <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('student.search') }}</el-button>
         </el-col>
         <el-col align="right">
@@ -82,34 +84,37 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="80px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('student.name')" prop="name">
-          <el-input v-model="temp.name"/>
+        <el-form-item :label="$t('student.name')" prop="real_name">
+          <el-input v-model="temp.real_name"/>
         </el-form-item>
-        <el-form-item :label="$t('student.studentid')" prop="studentId">
-          <el-input v-model="temp.studentId"/>
+        <el-form-item v-if="textMap[dialogStatus]=='创建'" label="密码" prop="password">
+          <el-input v-model="temp.password"/>
+        </el-form-item>
+        <el-form-item :label="$t('student.studentid')" prop="card_id">
+          <el-input v-model="temp.card_id"/>
         </el-form-item>
         <el-form-item :label="$t('student.gender')" prop="gender">
           <el-input v-model="temp.gender"/>
         </el-form-item>
         <el-form-item :label="$t('student.department')" prop="department">
-          <el-select v-model="temp.department" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in departmentOptions" :key="item" :label="item" :value="item"/>
+          <el-select v-model="temp.department.id" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in departmentOptions" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('student.birth')" prop="birth">
-          <el-date-picker v-model="temp.birth" type="datetime" placeholder="Please pick a date"/>
+        <el-form-item :label="$t('student.birth')" prop="birth_date">
+          <el-date-picker v-model="temp.birth_date" type="datetime" placeholder="Please pick a date"/>
         </el-form-item>
-        <el-form-item :label="$t('student.enroll')" prop="enroll">
-          <el-date-picker v-model="temp.enroll" type="datetime" placeholder="Please pick a date"/>
+        <el-form-item :label="$t('student.enroll')" prop="enroll_date">
+          <el-date-picker v-model="temp.enroll_date" type="datetime" placeholder="Please pick a date"/>
         </el-form-item>
-        <el-form-item :label="$t('student.buildingname')">
-          <el-select v-model="temp.buildingName" class="filter-item" placeholder="Please select" @change="handleUpdateDorm(temp.buildingName)" >
-            <el-option v-for="item in buildingOptions" :key="item" :label="item" :value="item"/>
+        <el-form-item :label="$t('student.buildingname')" prop="dormitory.building">
+          <el-select v-model="temp.dormitory.building.id" class="filter-item" placeholder="Please select" @change="handleUpdateDorm(temp.dormitory.building.id)" >
+            <el-option v-for="item in buildingOptions" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('student.dormid')">
-          <el-select v-model="temp.dormId" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in dormOptions" :key="item" :label="item" :value="item"/>
+        <el-form-item :label="$t('student.dormid')" prop="dormitory">
+          <el-select v-model="temp.dormitory.id" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in dormitoryOptions" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
       </el-form>
@@ -136,15 +141,6 @@ export default {
   name: 'Student',
   components: { Pagination },
   directives: { waves, permission },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        '未毕业': 'success',
-        '已毕业': 'danger'
-      }
-      return statusMap[status]
-    }
-  },
   data() {
     return {
       tableKey: 0,
@@ -155,25 +151,25 @@ export default {
         page: 1,
         limit: 20,
         filter: {
-          department_name: undefined,
+          department: undefined,
           real_name: undefined,
           card_id: undefined,
-          dormitory: undefined,
-          building_name: undefined
+          dormitory: undefined
         }
       },
-      departmentOptions: ['全部'],
-      buildingOptions: ['全部'],
+      building: undefined,
+      departmentOptions: [{ id: 0, name: '全部' }],
+      buildingOptions: [{ id: 0, name: '全部' }],
       dormitoryOptions: [],
       temp: {
-        studentId: undefined,
-        name: '',
+        card_id: undefined,
+        real_name: undefined,
+        password: undefined,
         gender: undefined,
-        department: '',
-        enroll: undefined,
-        birth: '',
-        dormId: undefined,
-        buildingName: ''
+        department: { id: undefined, name: undefined },
+        enroll_date: undefined,
+        birth_date: undefined,
+        dormitory: { building: { id: undefined, name: undefined }, id: undefined, number: undefined }
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -182,14 +178,13 @@ export default {
         create: '创建'
       },
       rules: {
-        name: [{ required: true, message: 'name is required', trigger: 'change' }],
-        studentId: [{ required: true, message: 'student id is required', trigger: 'change' }],
+        real_name: [{ required: true, message: 'name is required', trigger: 'change' }],
+        card_id: [{ required: true, message: 'student id is required', trigger: 'change' }],
         gender: [{ required: true, message: 'name is required', trigger: 'change' }],
         department: [{ required: true, message: 'department is required', trigger: 'change' }],
-        birth: [{ type: 'date', required: true, message: 'birth is required', trigger: 'change' }],
-        enroll: [{ type: 'date', required: true, message: 'enroll is required', trigger: 'change' }],
-        dormId: [{ required: true, message: 'dorm id is required', trigger: 'change' }],
-        buildingName: [{ required: true, message: 'building name is required', trigger: 'change' }]
+        birth_date: [{ required: true, message: 'birth is required', trigger: 'change' }],
+        enroll_date: [{ required: true, message: 'enroll is required', trigger: 'change' }],
+        dormitory: [{ required: true, message: 'dorm id is required', trigger: 'change' }]
       },
       downloadLoading: false
     }
@@ -200,29 +195,47 @@ export default {
     this.getDepartment()
   },
   methods: {
-    handleUpdateDorm(buildingName) {
-      var listQuery = {
-        BuildingName: buildingName
-      }
-      fetchDormitoryList(listQuery).then(response => {
-        this.dormOptions = response.data.items
+    handleUpdateDorm(id) {
+      this.dormitoryOptions = []
+      this.temp.dormitory.id = undefined
+      this.temp.dormitory.name = undefined
+      if (id === 0) { return }
+      fetchDormitoryList({ page: 1, limit: 20, filter: { building: id }}).then(response => {
+        for (var j = 0, len = response.data.result.total_count; j < len; j++) {
+          this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
+        }
       })
+    },
+    getDormitory() {
+      this.listLoading = true
+      this.dormitoryOptions = []
+      this.listQuery.filter.dormitory = undefined
+      if (this.building === '' || this.building === undefined || this.building === 0) {
+        this.building = undefined
+        this.listLoading = false
+      } else {
+        fetchDormitoryList({ page: 1, limit: 20, filter: { building: this.building }}).then((response) => {
+          for (var j = 0, len = response.data.result.total_count; j < len; j++) {
+            this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
+          }
+          this.listLoading = false
+        })
+      }
     },
     getDepartment() {
       this.listLoading = true
       fetchDepartment().then(response => {
-        // console.log(response)
         for (var j = 0, len = response.data.result.total_count; j < len; j++) {
-          this.departmentOptions.push(response.data.result.list[j].name)
+          this.departmentOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].name })
         }
       })
     },
     getList() {
       this.listLoading = true
+      console.log(this.listQuery)
       fetchStudentList(this.listQuery).then(response => {
-        console.log(response.data)
+        console.log(response.data.result.list)
         this.list = response.data.result.list
-        console.log(this.list)
         this.total = response.data.result.total_count
 
         // Just to simulate the time of the request
@@ -234,29 +247,25 @@ export default {
     getBuilding() {
       fetchBuildingList().then(response => {
         for (var j = 0, len = response.data.result.total_count; j < len; j++) {
-          this.buildingOptions.push(response.data.result.list[j].name)
+          this.buildingOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].name })
         }
       })
     },
     handleFilter() {
       this.listQuery.page = 1
+      if (this.listQuery.filter.department === '') { this.listQuery.filter.department = undefined }
       this.getList()
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        department: undefined,
-        name: '',
-        status: '未毕业',
-        dormid: undefined,
-        buildingname: '全部'
+        card_id: undefined,
+        password: undefined,
+        real_name: undefined,
+        gender: undefined,
+        department: { id: undefined, name: undefined },
+        enroll_date: undefined,
+        birth_date: undefined,
+        dormitory: { building: { id: undefined, name: undefined }, id: undefined, number: undefined }
       }
     },
     handleCreate() {
@@ -270,7 +279,22 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createStudent(this.temp).then(() => {
+          const post = {
+            obj: {
+              password: this.temp.password,
+              card_id: this.temp.id,
+              real_name: this.temp.real_name,
+              gender: this.temp.gender,
+              birth_date: this.temp.birth_date | parseTime('{y}-{m}-{d}'),
+              enroll_date: this.temp.enroll_date | parseTime('{y}-{m}-{d}'),
+              department: this.temp.department.id,
+              leave: false,
+              dormitory: this.temp.dormitory.id
+            }
+          }
+          console.log(post)
+          createStudent(post).then((res) => {
+            console.log(res)
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -285,18 +309,33 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
+      this.temp.enroll_date = parseTime(this.temp.enroll_date, '{y}-{m}-{d}')
+      this.temp.birth_date = parseTime(this.temp.birth_date, '{y}-{m}-{d}')
+      fetchDormitoryList({ page: 1, limit: 20, filter: { building: this.temp.dormitory.building.id }}).then(response => {
+        for (var j = 0, len = response.data.result.total_count; j < len; j++) {
+          this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
+        }
+      })
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
     },
     updateData() {
+      console.log(this.temp)
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          console.log(tempData)
+          const post = {
+            filter: {
+              id: tempData
+            },
+            obj: {
+
+            }
+          }
           updateStudent(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {

@@ -1,20 +1,10 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function fetchList(data) {
   return request({
     url: '/dormitory/list',
     method: 'post',
-    data: query
-  })
-}
-
-export function deleteDormitory(id) {
-  return request({
-    url: '/dormitory/delete',
-    method: 'post',
-    data: {
-      filter: { id }
-    }
+    data
   })
 }
 
