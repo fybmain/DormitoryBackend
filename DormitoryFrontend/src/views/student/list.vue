@@ -74,8 +74,6 @@
       <el-table-column :label="$t('student.actions')" align="center" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('student.edit') }}</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{ $t('student.delete') }}
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -128,7 +126,7 @@
 </template>
 
 <script>
-import { fetchList as fetchStudentList, createStudent, updateStudent, deleteStudent } from '@/api/student'
+import { fetchList as fetchStudentList, createStudent, updateStudent } from '@/api/student'
 import { fetchAll as fetchBuildingList } from '@/api/building'
 import { fetchDepartment } from '@/api/dormitory'
 import { fetchList as fetchDormitoryList } from '@/api/dormitory'
@@ -232,12 +230,9 @@ export default {
     },
     getList() {
       this.listLoading = true
-      console.log(this.listQuery)
       fetchStudentList(this.listQuery).then(response => {
-        console.log(response.data.result.list)
         this.list = response.data.result.list
         this.total = response.data.result.total_count
-
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -282,19 +277,35 @@ export default {
           const post = {
             obj: {
               password: this.temp.password,
-              card_id: this.temp.id,
+              card_id: this.temp.card_id,
               real_name: this.temp.real_name,
               gender: this.temp.gender,
-              birth_date: this.temp.birth_date | parseTime('{y}-{m}-{d}'),
-              enroll_date: this.temp.enroll_date | parseTime('{y}-{m}-{d}'),
+              graduate_date: null,
+              birth_date: parseTime(this.temp.birth_date, '{y}-{m}-{d}'),
+              enroll_date: parseTime(this.temp.enroll_date, '{y}-{m}-{d}'),
               department: this.temp.department.id,
-              leave: false,
+              leaved: false,
               dormitory: this.temp.dormitory.id
             }
           }
           console.log(post)
           createStudent(post).then((res) => {
-            console.log(res)
+            for (let i = 0; i < this.departmentOptions.length; i++) {
+              if (this.temp.department.id === this.departmentOptions[i].id) {
+                this.temp.department.name = this.departmentOptions[i].name
+              }
+            }
+            for (let i = 0; i < this.dormitoryOptions.length; i++) {
+              if (this.temp.dormitory.id === this.dormitoryOptions[i].id) {
+                this.temp.dormitory.name = this.dormitoryOptions[i].name
+              }
+            }
+            for (let i = 0; i < this.buildingOptions.length; i++) {
+              if (this.temp.dormitory.building.id === this.buildingOptions[i].id) {
+                this.temp.dormitory.building.name = this.buildingOptions[i].name
+              }
+            }
+            this.temp.id = res.data.result.id
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -327,16 +338,21 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          console.log(tempData)
           const post = {
             filter: {
-              id: tempData
+              id: tempData.id
             },
             obj: {
-
+              card_id: tempData.card_id,
+              real_name: tempData.real_name,
+              gender: tempData.gender,
+              birth_date: tempData.birth_date,
+              enroll_date: tempData.enroll_date,
+              department: tempData.department.id,
+              dormitory: tempData.dormitory.id
             }
           }
-          updateStudent(tempData).then(() => {
+          updateStudent(post).then((res) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
@@ -353,18 +369,6 @@ export default {
             })
           })
         }
-      })
-    },
-    handleDelete(row) {
-      deleteStudent(row.id).then(response => {
-        this.$notify({
-          title: '成功',
-          message: '删除成功',
-          type: 'success',
-          duration: 2000
-        })
-        const index = this.list.indexOf(row)
-        this.list.splice(index, 1)
       })
     },
     handleDownload() {

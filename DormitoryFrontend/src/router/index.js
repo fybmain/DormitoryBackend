@@ -202,6 +202,18 @@ export const asyncRouterMap = [
     ]
   },
   {
+    path: '/manager',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/manager/index'),
+        name: 'Manager',
+        meta: { title: 'Manager', icon: 'people' }
+      }
+    ]
+  },
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/list',
