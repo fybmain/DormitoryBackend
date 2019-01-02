@@ -171,11 +171,11 @@ def create_dormitory():
     for (key, value) in instance["obj"].items():
         setattr(dormitory, key, value)
 
-    electricity_meter = ElectricityMeter(state="OK")
+    electricity_meter = ElectricityMeter(state="OK", remaining=0)
     electricity_meter.save()
     dormitory.electricity_meter_id = electricity_meter.id
 
-    water_meter = WaterMeter(state="OK")
+    water_meter = WaterMeter(state="OK", remaining=0)
     water_meter.save()
     dormitory.water_meter_id = water_meter.id
 
