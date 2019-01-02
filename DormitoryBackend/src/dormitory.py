@@ -33,6 +33,17 @@ dormitory_updatable_properties = {
 }
 
 
+dormitory_create_properties = {
+    "number": {
+        "type": "string",
+        "pattern": "^[0-9]+$",
+    },
+    "building": {
+        "type": "integer",
+    },
+}
+
+
 def get_dormitories(filter: dict, allowed: List[str]):
     return Dormitory.select().where(
         get_filter_condition(filter, Dormitory)
@@ -146,8 +157,8 @@ def create_dormitory():
         "properties": {
             "obj": {
                 "type": "object",
-                "properties": dormitory_updatable_properties,
-                "required": list(dormitory_updatable_properties.keys()),
+                "properties": dormitory_create_properties,
+                "required": list(dormitory_create_properties.keys()),
                 "additionalProperties": False,
             },
         },
@@ -160,7 +171,17 @@ def create_dormitory():
     for (key, value) in instance["obj"].items():
         setattr(dormitory, key, value)
 
+    electricity_meter = ElectricityMeter(state="OK")
+    electricity_meter.save()
+    dormitory.electricity_meter_id = electricity_meter.id
+
+    water_meter = WaterMeter(state="OK")
+    water_meter.save()
+    dormitory.water_meter_id = water_meter.id
+
     dormitory.save()
     return http.Success(result={
         "id": dormitory.id,
+        "electricity_meter": electricity_meter.id,
+        "water_meter": water_meter.id,
     })
