@@ -14,3 +14,5 @@ from . import manager
 from . import student
 from . import dormitory
 from . import dormitoryrating
+
+from . import electricity_meter, electricity_bill
