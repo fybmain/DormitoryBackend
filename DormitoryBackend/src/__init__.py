@@ -16,3 +16,4 @@ from . import dormitory
 from . import dormitoryrating
 
 from . import electricity_meter, electricity_bill
+from . import water_meter, water_bill
