@@ -1,6 +1,7 @@
 from typing import List
 
-from .util import http, get_request_json, generate_all_list, generate_pagination_list, get_filter_condition
+from .util import http, get_request_json, generate_all_list, generate_pagination_list
+from .util import id_filter, string_filter, get_filter_condition
 from .global_obj import app
 from .model import Building
 from .permission import get_permission_condition, PermissionDenied, require_role
@@ -11,12 +12,12 @@ building_normal_properties = {
         "type": "string",
     },
 }
-
-
-building_filter_properties = dict(building_normal_properties, id={
-    "type": "integer",
-})
 building_updatable_properties = dict(building_normal_properties)
+
+building_filter_properties = {
+    "id": id_filter,
+    "name": string_filter,
+}
 
 
 def get_buildings(filter: dict, allowed: List[str]):

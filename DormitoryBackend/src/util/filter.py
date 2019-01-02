@@ -1,7 +1,7 @@
 import datetime
 from typing import Union
 from peewee import BooleanField, IntegerField, DecimalField, CharField, FixedCharField
-from peewee import DateField, DateTimeField, ForeignKeyField
+from peewee import DateField, DateTimeField, AutoField, ForeignKeyField
 
 
 bool_filter = {
@@ -228,6 +228,15 @@ def get_datetime_filter_condition(value: Union[dict, str], field):
         return condition
 
 
+id_filter = {
+    "type": "integer",
+}
+
+
+def get_id_filter_condition(value: int, field):
+    return field == value
+
+
 foreign_key_filter = {
     "oneOf": [
         {
@@ -256,6 +265,7 @@ field_handler_map = {
     FixedCharField: get_string_filter_condition,
     DateField: get_datetime_filter_condition,
     DateTimeField: get_datetime_filter_condition,
+    AutoField: get_id_filter_condition,
     ForeignKeyField: get_foreign_key_filter_condition,
 }
 
