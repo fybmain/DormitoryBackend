@@ -2,6 +2,7 @@ import datetime
 from typing import Union
 from peewee import BooleanField, IntegerField, DecimalField, CharField, FixedCharField
 from peewee import DateField, DateTimeField, AutoField, ForeignKeyField
+from peewee import FieldAlias
 
 
 bool_filter = {
@@ -254,7 +255,10 @@ def get_foreign_key_filter_condition(value: Union[dict, int], field):
         return field == value
     else:
         assert type(value) == dict
-        return get_filter_condition(value, field.rel_model)
+        rel_model = field.rel_model.alias()
+        sub_query_condition = get_filter_condition(value, rel_model)
+        sub_query = rel_model.select(rel_model.id).where(sub_query_condition)
+        return field.in_(sub_query)
 
 
 field_handler_map = {
@@ -274,7 +278,8 @@ def get_filter_condition(d: dict, model: type):
     condition = True
     for (key, value) in d.items():
         field = getattr(model, key)
-        field_type = type(field)
+        raw_field = field.field if isinstance(field, FieldAlias) else field
+        field_type = type(raw_field)
         if field_type in field_handler_map:
             cond = field_handler_map[field_type](value, field)
         else:

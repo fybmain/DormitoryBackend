@@ -1,22 +1,22 @@
 from typing import List
 
-from .util import http, get_request_json, generate_all_list, generate_pagination_list, get_filter_condition
+from .util import http, get_request_json, generate_all_list, generate_pagination_list
+from .util import id_filter, string_filter, get_filter_condition
 from .global_obj import app
 from .model import Department
 from .permission import get_permission_condition, PermissionDenied, require_role
 
 
-department_normal_properties = {
+department_filter_properties = {
+    "id": id_filter,
+    "name": string_filter,
+}
+
+department_updatable_properties = {
     "name": {
         "type": "string",
     },
 }
-
-
-department_filter_properties = dict(department_normal_properties, id={
-    "type": "integer",
-})
-department_updatable_properties = dict(department_normal_properties)
 
 
 def get_departments(filter: dict, allowed: List[str]):

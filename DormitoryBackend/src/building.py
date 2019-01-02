@@ -7,12 +7,11 @@ from .model import Building
 from .permission import get_permission_condition, PermissionDenied, require_role
 
 
-building_normal_properties = {
+building_updatable_properties = {
     "name": {
         "type": "string",
     },
 }
-building_updatable_properties = dict(building_normal_properties)
 
 building_filter_properties = {
     "id": id_filter,

@@ -1,12 +1,22 @@
 from typing import List
 
-from .util import http, get_request_json, get_filter_condition, generate_pagination_list
+from .util import http, get_request_json, generate_pagination_list
+from .util import string_filter, id_filter, foreign_key_filter, get_filter_condition
 from .global_obj import app
 from .model import Dormitory, Building, ElectricityMeter, WaterMeter
 from .permission import get_permission_condition, check_permission_condition, PermissionDenied
 
 
-dormitory_normal_properties = {
+dormitory_filter_properties = {
+    "id": id_filter,
+    "number": string_filter,
+    "building": foreign_key_filter,
+    "electricity_meter": foreign_key_filter,
+    "water_meter": foreign_key_filter,
+}
+
+
+dormitory_updatable_properties = {
     "number": {
         "type": "string",
         "pattern": "^[0-9]+$",
@@ -21,14 +31,6 @@ dormitory_normal_properties = {
         "type": "integer",
     },
 }
-
-
-dormitory_filter_properties = dict(dormitory_normal_properties, id={
-    "type": "integer",
-})
-
-
-dormitory_updatable_properties = dict(dormitory_normal_properties)
 
 
 def get_dormitories(filter: dict, allowed: List[str]):
@@ -121,6 +123,7 @@ def update_dormitory_info():
     obj_process(instance["obj"])
 
     allow_read_dormitory = get_dormitories(instance["filter"], ["Management", "Self"])
+    print(allow_read_dormitory.sql())
     if allow_read_dormitory.count() < 1:
         raise Dormitory.DoesNotExist()
 
