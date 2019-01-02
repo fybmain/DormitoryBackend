@@ -198,7 +198,7 @@ export default {
       this.temp.dormitory.id = undefined
       this.temp.dormitory.name = undefined
       if (id === 0) { return }
-      fetchDormitoryList({ page: 1, limit: 20, filter: { building: id }}).then(response => {
+      fetchDormitoryList({ page: 1, limit: 20, filter: { id: id }}).then(response => {
         for (var j = 0, len = response.data.result.total_count; j < len; j++) {
           this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
         }
@@ -212,7 +212,7 @@ export default {
         this.building = undefined
         this.listLoading = false
       } else {
-        fetchDormitoryList({ page: 1, limit: 20, filter: { building: this.building }}).then((response) => {
+        fetchDormitoryList({ page: 1, limit: 20, filter: { id: this.building }}).then((response) => {
           for (var j = 0, len = response.data.result.total_count; j < len; j++) {
             this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
           }
@@ -323,7 +323,7 @@ export default {
       this.dialogStatus = 'update'
       this.temp.enroll_date = parseTime(this.temp.enroll_date, '{y}-{m}-{d}')
       this.temp.birth_date = parseTime(this.temp.birth_date, '{y}-{m}-{d}')
-      fetchDormitoryList({ page: 1, limit: 20, filter: { building: this.temp.dormitory.building.id }}).then(response => {
+      fetchDormitoryList({ page: 1, limit: 20, filter: { id: this.temp.dormitory.building.id }}).then(response => {
         for (var j = 0, len = response.data.result.total_count; j < len; j++) {
           this.dormitoryOptions.push({ id: response.data.result.list[j].id, name: response.data.result.list[j].number })
         }
