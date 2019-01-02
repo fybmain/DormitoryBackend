@@ -123,7 +123,6 @@ def update_dormitory_info():
     obj_process(instance["obj"])
 
     allow_read_dormitory = get_dormitories(instance["filter"], ["Management", "Self"])
-    print(allow_read_dormitory.sql())
     if allow_read_dormitory.count() < 1:
         raise Dormitory.DoesNotExist()
 

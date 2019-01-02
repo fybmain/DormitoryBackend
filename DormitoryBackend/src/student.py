@@ -1,13 +1,31 @@
 from typing import List
 
-from .util import http, get_request_json, generate_pagination_list, get_filter_condition
+from .util import http, get_request_json, generate_pagination_list
+from .util import id_filter, string_filter, date_filter, foreign_key_filter, bool_filter, get_filter_condition
 from .global_obj import app
 from .model import Student, Department, Dormitory
 from .auth import calc_password_hash
 from .permission import get_permission_condition, check_permission_condition, PermissionDenied
 
 
-student_normal_properties = {
+student_filter_properties = {
+    "id": id_filter,
+    "card_id": string_filter,
+    "real_name": string_filter,
+    "gender": {
+        "type": "string",
+        "pattern": "^(男|女)$",
+    },
+    "birth_date": date_filter,
+    "enroll_date": date_filter,
+    "graduate_date": date_filter,
+    "department": foreign_key_filter,
+    "leaved": bool_filter,
+    "dormitory": foreign_key_filter,
+}
+
+
+student_updatable_properties = {
     "card_id": {
         "type": "string",
         "pattern": "^[0-9]+$",
@@ -54,17 +72,10 @@ student_normal_properties = {
             },
         ],
     },
+    "password":{
+        "type": "string",
+    },
 }
-
-
-student_filter_properties = dict(student_normal_properties, id={
-    "type": "integer",
-})
-
-
-student_updatable_properties = dict(student_normal_properties, password={
-    "type": "string",
-})
 
 
 def get_students(filter: dict, allowed: List[str]):
@@ -100,6 +111,13 @@ def generate_student_info(student: Student) -> dict:
     }
 
 
+def filter_process(filter: dict):
+    if "gender" in filter:
+        gender_str: str = filter["gender"]
+        gender = (gender_str == "女")
+        filter["gender"] = gender
+
+
 @app.route("/student/list", methods=["POST"])
 def get_student_list():
     instance = get_request_json(schema={
@@ -121,6 +139,7 @@ def get_student_list():
         "required": ["page", "limit", "filter"],
         "additionalProperties": False,
     })
+    filter_process(instance["filter"])
     students = get_students(instance["filter"], ["Management", "Self"])
     return http.Success(result=generate_pagination_list(
         objs=students,
@@ -173,6 +192,7 @@ def update_student_info():
         },
         "additionalProperties": False,
     })
+    filter_process(instance["filter"])
     obj_process(instance["obj"])
 
     allow_read_student = get_students(instance["filter"], ["Management", "Self"])

@@ -1,13 +1,24 @@
 from typing import List
 
-from .util import http, get_request_json, generate_pagination_list, get_filter_condition
+from .util import http, get_request_json, generate_pagination_list
+from .util import id_filter, bool_filter, foreign_key_filter, string_filter, date_filter, get_filter_condition
 from .global_obj import app
 from .model import Manager, Building
 from .auth import calc_password_hash
 from .permission import get_permission_condition, check_permission_condition, PermissionDenied, require_role
 
 
-manager_normal_properties = {
+manager_filter_properties = {
+    "id": id_filter,
+    "building": foreign_key_filter,
+    "leaved": bool_filter,
+    "real_name": string_filter,
+    "enter_date": date_filter,
+    "leave_date": date_filter,
+}
+
+
+manager_updatable_properties = {
     "building": {
         "oneOf": [
             {
@@ -39,17 +50,10 @@ manager_normal_properties = {
             },
         ],
     },
+    "password":{
+        "type": "string",
+    },
 }
-
-
-manager_filter_properties = dict(manager_normal_properties, id={
-    "type": "integer",
-})
-
-
-manager_updatable_properties = dict(manager_normal_properties, password={
-    "type": "string",
-})
 
 
 def get_managers(filter: dict, allowed: List[str]):

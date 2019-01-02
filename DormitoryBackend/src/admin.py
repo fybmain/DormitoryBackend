@@ -1,27 +1,27 @@
 from typing import List
 
-from .util import http, get_request_json, generate_pagination_list, get_filter_condition
+from .util import http, get_request_json, generate_pagination_list
+from .util import id_filter, string_filter, get_filter_condition
 from .global_obj import app
 from .model import Admin
 from .auth import calc_password_hash
 from .permission import get_permission_condition, PermissionDenied, require_role
 
 
-admin_normal_properties = {
-    "name": {
-        "type": "string",
-    },
+admin_filter_properties = {
+    "id": id_filter,
+    "name": string_filter,
 }
 
 
-admin_filter_properties = dict(admin_normal_properties, id={
-    "type": "integer",
-})
-
-
-admin_updatable_properties = dict(admin_normal_properties, password={
-    "type": "string",
-})
+admin_updatable_properties = {
+    "name": {
+        "type": "string",
+    },
+    "password": {
+        "type": "string",
+    },
+}
 
 
 def get_admins(filter: dict, allowed: List[str]):

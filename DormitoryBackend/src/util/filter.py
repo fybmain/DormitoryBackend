@@ -6,7 +6,7 @@ from peewee import FieldAlias
 
 
 bool_filter = {
-    "type": bool,
+    "type": "boolean",
 }
 
 
