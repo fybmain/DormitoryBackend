@@ -53,14 +53,22 @@ def get_dormitories(filter: dict, allowed: List[str]):
 
 def generate_dormitory_info(dormitory: Dormitory):
     return {
-            "id": dormitory.id,
+        "id": dormitory.id,
         "number": dormitory.number,
         "building": {
             "id": dormitory.building_id,
             "name": dormitory.building.name,
         },
-        "electricity_meter": dormitory.electricity_meter_id,
-        "water_meter": dormitory.water_meter_id,
+        "electricity_meter": {
+            "id": dormitory.electricity_meter_id,
+            "state": dormitory.electricity_meter.state,
+            "remaining": float(dormitory.electricity_meter.remaining),
+        },
+        "water_meter": {
+            "id": dormitory.water_meter_id,
+            "state": dormitory.water_meter.state,
+            "remaining": float(dormitory.water_meter.remaining),
+        },
     }
 
 
