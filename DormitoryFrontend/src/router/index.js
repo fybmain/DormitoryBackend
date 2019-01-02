@@ -214,6 +214,18 @@ export const asyncRouterMap = [
     ]
   },
   {
+    path: '/rating',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/rating/list'),
+        name: 'Rating',
+        meta: { title: '活动评价', icon: 'tab' }
+      }
+    ]
+  },
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/list',
