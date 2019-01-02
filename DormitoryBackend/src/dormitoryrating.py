@@ -41,10 +41,10 @@ def generate_dormitoryrating_info(dormitoryrating: DormitoryRating):
         "id": dormitoryrating.id,
         "dormitory": {
             "id": dormitoryrating.dormitory_id,
-            "name": dormitoryrating.dormitory.name,
+            "number": dormitoryrating.dormitory.number,
         },
         "date": dormitoryrating.date,
-        "rating": dormitoryrating.rating,
+        "rating": float(dormitoryrating.rating),
     }
 
 
