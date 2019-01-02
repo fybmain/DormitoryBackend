@@ -16,26 +16,29 @@ class Building(db.Model):
 
 class Department(db.Model):
     name = CharField(255, null=False)
+    remaining = DecimalField(10, 2, null=False)
 
 
 class ElectricityMeter(db.Model):
     state = CharField(20, null=False)
+    remaining = DecimalField(10, 2, null=False)
 
 
 class ElectricityBill(db.Model):
     electricity_meter = ForeignKeyField(ElectricityMeter, null=False)
-    remaining = DecimalField(10, 2, null=False)
     record_time = DateTimeField(null=False)
+    money = DecimalField(10, 2, null=False)
 
 
 class WaterMeter(db.Model):
     state = CharField(20, null=False)
+    remaining = DecimalField(10, 2, null=False)
 
 
 class WaterBill(db.Model):
     water_meter = ForeignKeyField(WaterMeter, null=False)
-    remaining = DecimalField(10, 2, null=False)
     record_time = DateTimeField(null=False)
+    money = DecimalField(10, 2, null=False)
 
 
 class Dormitory(db.Model):
