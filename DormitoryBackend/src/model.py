@@ -16,7 +16,6 @@ class Building(db.Model):
 
 class Department(db.Model):
     name = CharField(255, null=False)
-    remaining = DecimalField(10, 2, null=False)
 
 
 class ElectricityMeter(db.Model):
