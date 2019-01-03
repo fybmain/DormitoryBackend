@@ -23,7 +23,7 @@
       fit
       highlight-current-row
       style="width: 100%;">
-      <el-table-column :label="$t('dormitory.dormNum')" prop="id" sortable="custom" align="center" width="65">
+      <el-table-column :label="$t('dormitory.dormNum')" sortable="custom" align="center" width="65">
         <template slot-scope="scope">
           <span>{{ scope.row.number }}</span>
         </template>
@@ -33,14 +33,14 @@
           <span>{{ scope.row.building.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('dormitory.waterMeterId')" width="150px" align="center">
+      <el-table-column label="水费余额" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.water_meter }}</span>
+          <span>{{ scope.row.water_meter.remaining }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('dormitory.electricMeterId')" width="150px" align="center">
+      <el-table-column label="电费余额" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.electricity_meter }}</span>
+          <span>{{ scope.row.electricity_meter.remaining }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('dormitory.actions')" align="center" min-width="250" class-name="small-padding fixed-width">
@@ -64,11 +64,11 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('dormitory.electricMeterId')" prop="electricity_meter">
-          <el-input v-model.number="temp.electricity_meter"/>
+        <el-form-item :label="$t('dormitory.electricMeterId')" prop="electricity_meter.id">
+          <el-input v-model.number="temp.electricity_meter.id"/>
         </el-form-item>
-        <el-form-item :label="$t('dormitory.waterMeterId')" prop="water_meter">
-          <el-input v-model.number="temp.water_meter"/>
+        <el-form-item :label="$t('dormitory.waterMeterId')" prop="water_meter.id">
+          <el-input v-model.number="temp.water_meter.id"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -118,8 +118,8 @@ export default {
       temp: {
         number: undefined,
         building: { name: undefined, id: undefined },
-        electricity_meter: undefined,
-        water_meter: undefined
+        electricity_meter: { id: undefined },
+        water_meter: { id: undefined }
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -175,9 +175,9 @@ export default {
     resetTemp() {
       this.temp = {
         number: undefined,
-        building: { id: undefined, name: undefined },
-        electricity_meter: undefined,
-        water_meter: undefined
+        building: { name: undefined, id: undefined },
+        electricity_meter: { id: undefined },
+        water_meter: { id: undefined }
       }
     },
     handleCreate() {
@@ -199,8 +199,10 @@ export default {
       console.log(this.temp)
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createDormitory({ obj: { number: this.temp.number, building: this.temp.building.id, electricity_meter: this.temp.electricity_meter,
-            water_meter: this.temp.water_meter }}).then((response) => {
+          createDormitory({ obj: { number: this.temp.number, building: this.temp.building.id }}).then((response) => {
+            console.log(response)
+            this.temp.electricity_meter.id = response.data.result.electricity_meter
+            this.temp.water_meter.id = response.data.result.water_meter
             this.temp.building.name = this.ShowBuildingName(this.temp.building.id)
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -228,7 +230,7 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           updateDormitory({ obj: { number: tempData.number, building: tempData.building.id,
-            electricity_meter: tempData.electricity_meter, water_meter: tempData.water_meter }, filter: { id: tempData.id }}).then((res) => {
+            electricity_meter: tempData.electricity_meter.id, water_meter: tempData.water_meter.id }, filter: { id: tempData.id }}).then((res) => {
             this.temp.building.name = this.ShowBuildingName(tempData.building.id)
             for (const v of this.list) {
               if (v.id === this.temp.id) {
@@ -253,7 +255,9 @@ export default {
         page: 1,
         limit: 20,
         filter: {
-          dormitory: id
+          dormitory: {
+            id: id
+          }
         }
       }
       fetchStudentList(query).then(response => {

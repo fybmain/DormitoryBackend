@@ -214,6 +214,24 @@ export const asyncRouterMap = [
     ]
   },
   {
+    path: '/meter',
+    component: Layout,
+    children: [
+      {
+        path: 'watermeter',
+        component: () => import('@/views/meter/watermeter'),
+        name: 'Watermeter',
+        meta: { title: '用水情况', icon: 'tab' }
+      },
+      {
+        path: 'electricmeter',
+        component: () => import('@/views/meter/electricmeter'),
+        name: 'Electricmeter',
+        meta: { title: '用电情况', icon: 'tab' }
+      }
+    ]
+  },
+  {
     path: '/rating',
     component: Layout,
     children: [

@@ -215,7 +215,6 @@ export default {
             }
           }
           createRating(post).then((res) => {
-            console.log(res)
             this.temp.id = res.data.result.id
             this.temp.dormitory.number = this.ShowBuildingName(this.temp.dormitory.id)
             this.list.unshift(this.temp)
